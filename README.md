@@ -10,6 +10,10 @@ https://medium.com/robovision-ai/use-kubernetes-extendedresourcetoleration-to-ke
 
 
 ```
+oc get rule
+```
+
+```
 oc get compliancecheckresult
 NAME                                                                           STATUS           SEVERITY
 roks-cis-node-worker-etcd-unique-ca                                            NOT-APPLICABLE   medium
@@ -43,3 +47,5 @@ roks-cis-node-worker-kubelet-eviction-thresholds-set-soft-memory-available     F
 roks-cis-node-worker-kubelet-eviction-thresholds-set-soft-nodefs-available     FAIL             medium
 roks-cis-node-worker-kubelet-eviction-thresholds-set-soft-nodefs-inodesfree    FAIL             medium
 ```
+
+Run scan with debug: https://bugzilla.redhat.com/show_bug.cgi?id=1919367
