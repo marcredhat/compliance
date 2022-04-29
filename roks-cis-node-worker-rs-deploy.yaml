@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "2"
+  creationTimestamp: "2022-04-29T03:49:15Z"
+  generation: 2
+  name: roks-cis-node-worker-rs
+  namespace: openshift-compliance
+  resourceVersion: "455342380"
+  selfLink: /apis/apps/v1/namespaces/openshift-compliance/deployments/roks-cis-node-worker-rs
+  uid: de8fa660-ff57-4c22-9153-5805de8b64bc
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      compliance.openshift.io/scan-name: roks-cis-node-worker
+      workload: resultserver
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        workload.openshift.io/management: '{"effect": "PreferredDuringScheduling"}'
+      creationTimestamp: null
+      labels:
+        compliance.openshift.io/scan-name: roks-cis-node-worker
+        workload: resultserver
+    spec:
+      containers:
+      - command:
+        - compliance-operator
+        - resultserver
+        - --path=/reports/
+        - --address=0.0.0.0
+        - --port=8443
+        - --scan-index=0
+        - --rotation=3
+        - --tls-server-cert=/etc/pki/tls/tls.crt
+        - --tls-server-key=/etc/pki/tls/tls.key
+        - --tls-ca=/etc/pki/tls/ca.crt
+        image: registry.redhat.io/openshift4/compliance-rhel8-operator@sha256:ed68a0574ddeaf7d676403cd843f28cb586894f35dbb3ca5e06a5264bd42f030
+        imagePullPolicy: Always
+        name: result-server
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /reports
+          name: arfreports
+        - mountPath: /etc/pki/tls
+          name: tls
+          readOnly: true
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: resultserver
+      serviceAccountName: resultserver
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: arfreports
+        persistentVolumeClaim:
+          claimName: roks-cis-node-worker
+      - name: tls
+        secret:
+          defaultMode: 420
+          secretName: result-server-cert-roks-cis-node-worker
